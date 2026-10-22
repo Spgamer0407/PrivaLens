@@ -25,17 +25,25 @@ PrivaLens intercepts sensitive data — API keys, database URIs, JWTs, passwords
 
 ## 🧪 Quick Test
 
-Paste this into ChatGPT or any text field:
+Paste a string containing any of these patterns into ChatGPT or any text field:
+
+- An OpenAI-style key: `sk-proj-` followed by 32+ alphanumeric characters
+- An AWS access key: `AKIA` followed by 16 uppercase alphanumeric characters
+- A database URI: `postgres://`, `mysql://`, or `mongodb+srv://` connection string
+- A credential: `password = "somevalue"` or `password: somevalue`
+- An email address or phone number
+
+**Example — copy this, replace the placeholders, and paste:**
 
 ```
-OPENAI_KEY=sk-proj-Rk9xYz3mN7pQ2wLs8vTjUaHbCdEfGhIjKlMnOpQrStUvWx
-AWS_ACCESS_KEY_ID=AKIAI44QH8DHBEXAMPLE
-DATABASE_URL=mongodb+srv://root:hunter2@cluster0.abc123.mongodb.net/production
-password: "r00tAdm!n_2024"
-admin_email: admin@internal-corp.io
+OPENAI_KEY=sk-proj-<paste any 40+ random chars here>
+password: "any-fake-value-here"
+admin_email: test@example.com
 ```
 
 The interception modal should appear instantly.
+
+> ⚠️ **Note:** Real-looking fake secrets are intentionally excluded from this README to avoid triggering GitHub's secret scanner. Use obviously fake values for testing.
 
 ## 🗂️ Project Structure
 
