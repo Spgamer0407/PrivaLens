@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "PrivaLens - Shadow AI Privacy Shield",
+  "version": "1.0.0",
+  "description": "Inline client-side Shadow AI Data Loss Prevention guardrail. Intercepts, detects, and sanitizes sensitive data before it reaches AI platforms.",
+  "icons": {},
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "PrivaLens - Shadow AI Privacy Shield"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["dashboard.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

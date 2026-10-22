@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PrivaLens — Audit Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset ────────────────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-primary:   #09090b;
+      --bg-secondary: #18181b;
+      --bg-card:      #1c1c1f;
+      --border:       rgba(63,63,70,0.45);
+      --text-primary: #f4f4f5;
+      --text-secondary: #a1a1aa;
+      --text-muted:   #71717a;
+      --emerald:      #10b981;
+      --emerald-dim:  rgba(16,185,129,0.12);
+      --cyan:         #06b6d4;
+      --cyan-dim:     rgba(6,182,212,0.12);
+      --red:          #ef4444;
+      --red-dim:      rgba(239,68,68,0.12);
+      --amber:        #f59e0b;
+      --amber-dim:    rgba(245,158,11,0.12);
+      --purple:       #a855f7;
+      --purple-dim:   rgba(168,85,247,0.12);
+      --pink:         #ec4899;
+      --pink-dim:     rgba(236,72,153,0.12);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────────── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────── */
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .dash-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .dash-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 0 28px rgba(16,185,129,0.2);
+      flex-shrink: 0;
+    }
+    .dash-title {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .dash-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .btn-clear {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      background: var(--red-dim);
+      color: #fca5a5;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      border: 1px solid rgba(239,68,68,0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-clear:hover {
+      background: rgba(239,68,68,0.2);
+      border-color: rgba(239,68,68,0.35);
+    }
+    .btn-clear:active { transform: scale(0.97); }
+
+    /* ── Metric cards ─────────────────────────────────────────────── */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .metric-card {
+      padding: 22px 20px;
+      border-radius: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .metric-card:hover {
+      border-color: rgba(16,185,129,0.25);
+      transform: translateY(-2px);
+    }
+    .metric-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .metric-value {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .metric-value.emerald { color: var(--emerald); }
+    .metric-value.cyan    { color: var(--cyan); }
+    .metric-value.amber   { color: var(--amber); }
+    .metric-value.purple  { color: var(--purple); }
+    .metric-footer {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .metric-footer .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      display: inline-block;
+    }
+    .dot-green  { background: var(--emerald); box-shadow: 0 0 6px rgba(16,185,129,0.4); }
+    .dot-cyan   { background: var(--cyan); }
+    .dot-amber  { background: var(--amber); }
+    .dot-purple { background: var(--purple); }
+
+    /* ── Top types bar chart ──────────────────────────────────────── */
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title .icon { font-size: 16px; }
+    .type-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 28px;
+      padding: 20px;
+      border-radius: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+    }
+    .type-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .type-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      width: 140px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .type-bar-track {
+      flex: 1;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(63,63,70,0.3);
+      overflow: hidden;
+    }
+    .type-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+    .type-count {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      width: 32px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ── Incident table ──────────────────────────────────────────── */
+    .table-wrap {
+      border-radius: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead th {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 14px 16px;
+      text-align: left;
+      background: rgba(39,39,42,0.4);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+    }
+    tbody td {
+      font-size: 13px;
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(63,63,70,0.2);
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(39,39,42,0.3); }
+
+    .domain-cell {
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--cyan);
+    }
+    .category-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .cat-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .cat-tag-key       { background: var(--red-dim);    color: #fca5a5; }
+    .cat-tag-db        { background: var(--purple-dim); color: #c4b5fd; }
+    .cat-tag-jwt       { background: var(--amber-dim);  color: #fcd34d; }
+    .cat-tag-cred      { background: var(--pink-dim);   color: #f9a8d4; }
+    .cat-tag-email     { background: var(--cyan-dim);   color: #67e8f9; }
+    .cat-tag-phone     { background: var(--emerald-dim);color: #86efac; }
+
+    .action-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .action-sanitized { background: var(--emerald-dim); color: #6ee7b7; }
+    .action-blocked   { background: rgba(63,63,70,0.4); color: #a1a1aa; }
+    .action-bypassed  { background: var(--red-dim);     color: #fca5a5; }
+
+    /* ── Empty state ─────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-muted);
+    }
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state h3 { font-size: 16px; font-weight: 700; color: var(--text-secondary); margin-bottom: 4px; }
+    .empty-state p { font-size: 13px; }
+
+    /* ── Responsive ──────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .container { padding: 20px 12px 48px; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .type-label { width: 100px; }
+      thead th, tbody td { padding: 10px 10px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="dash-header">
+      <div class="dash-header-left">
+        <div class="dash-logo">🛡️</div>
+        <div>
+          <div class="dash-title">PrivaLens Audit Dashboard</div>
+          <div class="dash-subtitle">Zero-Knowledge DLP Incident Log</div>
+        </div>
+      </div>
+      <button class="btn-clear" id="btnClear">🗑️ Clear Logs</button>
+    </div>
+
+    <!-- Metric cards -->
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Total Interceptions</div>
+        <div class="metric-value emerald" id="mTotal">0</div>
+        <div class="metric-footer"><span class="dot dot-green"></span> All-time incidents</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Secrets Redacted</div>
+        <div class="metric-value cyan" id="mRedacted">0</div>
+        <div class="metric-footer"><span class="dot dot-cyan"></span> Tokens replaced</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Unique Domains</div>
+        <div class="metric-value amber" id="mDomains">0</div>
+        <div class="metric-footer"><span class="dot dot-amber"></span> Distinct hosts</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Security Score</div>
+        <div class="metric-value purple" id="mScore">100%</div>
+        <div class="metric-footer"><span class="dot dot-purple"></span> 100% Client-Side</div>
+      </div>
+    </div>
+
+    <!-- Top Detected Types -->
+    <div class="section-title"><span class="icon">📊</span> Top Detected Secret Types</div>
+    <div class="type-bars" id="typeBars">
+      <div style="color:var(--text-muted); font-size:12px; text-align:center; padding:12px 0;">No data yet</div>
+    </div>
+
+    <!-- Incident Table -->
+    <div class="section-title"><span class="icon">📋</span> Incident Log</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Domain</th>
+            <th>Categories</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="incidentBody">
+          <tr>
+            <td colspan="4">
+              <div class="empty-state">
+                <div class="icon">🔒</div>
+                <h3>No Incidents Recorded</h3>
+                <p>PrivaLens is watching. Paste something sensitive into an AI chat to test.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
